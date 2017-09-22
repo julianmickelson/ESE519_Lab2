@@ -22,26 +22,30 @@ int main(void)
 {
 	sei();
 	
-	set(DDRB,5); // output b5
-	set(DDRB,1);
+	set(DDRB,5); // b5 output 
+	set(DDRB,1); // b1 output
 	
 	clear(TCCR1B,CS12); // clock prescaler /1
 	clear(TCCR1B,CS11);
 	set(TCCR1B,CS10);
 	
 	OCR1A = 18181;
+	// ICR1 = 65535;
 	
-	set(TCCR1B,WGM13);
+	clear(TCCR1B,WGM13);
 	set(TCCR1B,WGM12);
-	set(TCCR1A,WGM11);
-	set(TCCR1A,WGM10); // up to OCR1A, mode 15
+	clear(TCCR1A,WGM11);
+	clear(TCCR1A,WGM10); // CTC, mode 4
+	
+	clear(TCCR1A,COM1A1);
+	set(TCCR1A,COM1A0); // toggling on OCR1A match
 	
 	set(TCCR1B,ICES1); // input capture ICP1 rising edge
 	// this will set ICF1
 	
 	set(TIMSK1,ICIE1); // timer1 input capture interrupt enable
 	// corresponding interrupt vector is executed when the ICF1 flag in TIFR1 is set
-	set(TIMSK1,OCIE1A); // enable TIMER1_COMPA
+	//set(TIMSK1,OCIE1A); // enable TIMER1_COMPA
 	
     while (1) 
     {
@@ -49,7 +53,8 @@ int main(void)
 }
 
 ISR(TIMER1_COMPA_vect){
-	toggle(PORTB,1);
+	toggle(PORTB,2);
+	TCNT1 = 0;
 }
 
 ISR(TIMER1_CAPT_vect){
